@@ -1,0 +1,4 @@
+*.png
+anim/
+env/
+__pycache__
