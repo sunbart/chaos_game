@@ -1,5 +1,5 @@
 from itertools import repeat
-from math import floor
+from math import floor, log10, sin, cos, pi
 from PIL import Image
 import random
 
@@ -48,39 +48,38 @@ def midpoint(point_1, point_2):
     return tuple((coord_1 + coord_2) / 2 for coord_1, coord_2 in zip(point_1, point_2))
 
 
+def log_interpoint(point_1, point_2, pre_num, post_num):
+    return tuple(
+        coord_2 + (coord_1 - coord_2) * log10(pre_num / post_num)
+        for coord_1, coord_2 in zip(point_1, point_2)
+    )
+
+
+def mean_interpoint(point_1, point_2, pre_num, post_num):
+    return tuple(
+        (coord_1 * pre_num + coord_2 * post_num) / (pre_num + post_num)
+        for coord_1, coord_2 in zip(point_1, point_2)
+    )
+
+
+def relation_interpoint(point_1, point_2, pre_num, post_num):
+    return tuple(
+        (coord_1 * pre_num + coord_2 * post_num) / (pre_num + post_num)
+        for coord_1, coord_2 in zip(point_1, point_2)
+    )
+
+
+def anchor_generator(count, middle=(0.5, 0.5), radius=0.45):
+    return [
+        (
+            middle[0] + radius * cos(2 * i * pi / count),
+            middle[1] + radius * sin(2 * i * pi / count),
+        )
+        for i in range(count)
+    ]
+
+
 presets = {
-    3: [1.14, 1, [(0.57, 0.05), (0.05, 0.95), (1.09, 0.95)]],
-    4: [1, 1, [(0.05, 0.05), (0.05, 0.95), (0.95, 0.95), (0.95, 0.05)]],
-    5: [
-        1.046,
-        1,
-        [(0.5, 0.05), (0.95, 0.393), (0.816, 0.95), (0.23, 0.95), (0.05, 0.393)],
-    ],
-    6: [
-        1.14,
-        1,
-        [
-            (0.829, 0.05),
-            (1.09, 0.5),
-            (0.829, 0.95),
-            (0.31, 0.95),
-            (0.05, 0.5),
-            (0.31, 0.05),
-        ],
-    ],
-    7: [
-        1.023,
-        1,
-        [
-            (0.511, 0.05),
-            (0.882, 0.228),
-            (0.973, 0.629),
-            (0.717, 0.95),
-            (0.306, 0.95),
-            (0.05, 0.629),
-            (0.141, 0.228),
-        ],
-    ],
     "arrow": [
         1,
         1,
@@ -91,3 +90,7 @@ presets = {
 presets["random"] = [1, 1, []]
 for _ in range(4):
     presets["random"][2].append((random.random(), random.random()))
+
+
+for count in range(3, 8):
+    presets[count] = [1, 1, anchor_generator(count)]
